@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 
 const BackgroundMusic = () => {
   const audioRef = useRef(null);
+  const audioUrl = `${import.meta.env.BASE_URL}audio/Romantic%20Raaga%20%20Audio%20Jukebox%20%20Instrumental%20%20Classical%20%20Hariprasad%20Chaurasia%20%20Music%20Today.mp3`;
 
   useEffect(() => {
     if (audioRef.current) {
@@ -19,7 +20,7 @@ const BackgroundMusic = () => {
     <div style={{ display: 'none' }}>
       <audio
         ref={audioRef}
-        src="/audio/Romantic Raaga  Audio Jukebox  Instrumental  Classical  Hariprasad Chaurasia  Music Today.mp3"
+        src={audioUrl}
         loop
       />
     </div>

@@ -2,9 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const Landing = () => {
+  const heroImage = `${import.meta.env.BASE_URL}hero.png`;
+
   return (
     <div className="hero-section">
-      <img src="/hero.png" alt="Lakeside Wedding" className="hero-img" />
+      <img src={heroImage} alt="Lakeside Wedding" className="hero-img" />
       <div className="hero-overlay"></div>
       
       <div className="hero-content">

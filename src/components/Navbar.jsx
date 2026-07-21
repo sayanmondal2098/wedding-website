@@ -7,6 +7,7 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const logoUrl = `${import.meta.env.BASE_URL}nav_logo.png`;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,7 +28,7 @@ const Navbar = () => {
     <nav className={`navbar ${isScrolled ? 'scrolled glass' : ''}`}>
       <div className="nav-container">
         <Link to="/" className="nav-logo">
-          <img src="/nav_logo.png" alt="S & S Logo" style={{ height: '80px', objectFit: 'cover' }} />
+          <img src={logoUrl} alt="S & S Logo" style={{ height: '80px', objectFit: 'cover' }} />
         </Link>
 
         {/* Desktop Nav */}

@@ -3,10 +3,11 @@ import { Link } from 'react-router-dom';
 import './Home.css';
 
 const Home = () => {
+  const assetUrl = (path) => `${import.meta.env.BASE_URL}${path}`;
   const sections = [
-    { title: 'The Details', path: '/details', img: '/table.png' },
-    { title: 'Schedule', path: '/schedule', img: '/hero.png' },
-    { title: 'RSVP', path: '/rsvp', img: '/table.png' }
+    { title: 'The Details', path: '/details', img: assetUrl('table.png') },
+    { title: 'Schedule', path: '/schedule', img: assetUrl('hero.png') },
+    { title: 'RSVP', path: '/rsvp', img: assetUrl('table.png') }
   ];
 
   return (
