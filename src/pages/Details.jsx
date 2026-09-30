@@ -1,40 +1,26 @@
 import React from 'react';
+import { ArrowUpRight, CarFront, MapPin } from 'lucide-react';
 import './PageStyles.css';
 
-const Details = () => {
-  return (
-    <div className="page-wrapper">
-      <div className="page-header">
-        <h1>The Details</h1>
-      </div>
-      <div className="page-content">
-        <div className="info-block">
-          <h2>The Marriage</h2>
-          <p>Tuesday, 26 Jan 2027</p>
-          <p>Ceremony at 4:30 PM</p>
-          <p><strong>Subha Deep Villa</strong></p>
-          <p>E7-83, NEW, Biren Roy Road W, Subhayan Park, Beledanga, Muchipara, Maheshtala, West Bengal 700061</p>
-          <p>Location: <a href="https://maps.app.goo.gl/XnhsdVqRoTtwMRBm7" target="_blank" rel="noreferrer" className="link-text" style={{marginTop: 0}}>View on Google Maps</a></p>
-        </div>
-        
-        <div className="info-block">
-          <h2>The Reception</h2>
-          <p>Thursday, 28 Jan 2027</p>
-          <p>Evening Reception</p>
-          <p><strong>Bangur Avenue Town Hall</strong></p>
-          <p>Bangur Avenue, South Dumdum, Kolkata 700055</p>
-          <p>Location: <a href="https://maps.app.goo.gl/x2wshfVBcZM2PsAd6" target="_blank" rel="noreferrer" className="link-text" style={{marginTop: 0}}>View on Google Maps</a></p>
-        </div>
+const EventCard = ({ number, date, title, time, venue, address, map }) => (
+  <article className="event-card">
+    <div className="event-card-top"><span className="event-number">{number}</span><p>{date}</p></div>
+    <h2>{title}</h2>
+    <div className="event-card-rule" />
+    <dl className="event-facts"><div><dt>Time</dt><dd>{time}</dd></div><div><dt>Venue</dt><dd>{venue}<br /><span>{address}</span></dd></div></dl>
+    <a className="map-link" href={map} target="_blank" rel="noreferrer"><MapPin size={16} strokeWidth={1.5} />Open in Google Maps <ArrowUpRight size={15} strokeWidth={1.5} /></a>
+  </article>
+);
 
-
-
-        <div className="info-block">
-          <h2>Parking</h2>
-          <p>Valet parking will be provided at the venue. If you are taking a taxi, please instruct the driver to drop you off at the main gate.</p>
-        </div>
-      </div>
+const Details = () => <div className="event-page">
+  <header className="page-intro page-shell"><p className="eyebrow centered">All you need to know</p><h1 className="display-title">The Details</h1><p className="lead">Two moments, one very full heart. Here’s where to find us.</p></header>
+  <main className="page-shell details-main">
+    <div className="event-grid">
+      <EventCard number="01" date="Tuesday · 26 January 2027" title="The Marriage" time="4:30 PM onwards" venue="Subha Deep Villa" address="E7-83, New Biren Roy Road W, Maheshtala, West Bengal 700061" map="https://maps.app.goo.gl/XnhsdVqRoTtwMRBm7" />
+      <EventCard number="02" date="Thursday · 28 January 2027" title="The Reception" time="7:00 PM onwards" venue="Bangur Avenue Town Hall" address="Bangur Avenue, South Dumdum, Kolkata 700055" map="https://maps.app.goo.gl/x2wshfVBcZM2PsAd6" />
     </div>
-  );
-};
+    <aside className="travel-note"><CarFront size={28} strokeWidth={1.25} /><div><p className="eyebrow">A small note</p><h3>Arriving with ease</h3><p>Valet parking will be available at both venues. Arriving by taxi? Simply ask to be dropped at the main gate.</p></div></aside>
+  </main>
+</div>;
 
 export default Details;

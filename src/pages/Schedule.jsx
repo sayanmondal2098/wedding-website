@@ -1,35 +1,19 @@
 import React from 'react';
+import { ArrowUpRight, Clock3 } from 'lucide-react';
 import './PageStyles.css';
 
-const Schedule = () => {
-  return (
-    <div className="page-wrapper">
-      <div className="page-header">
-        <h1>Schedule</h1>
-      </div>
-      <div className="page-content">
+const Timeline = ({ day, date, title, time, venue, map, children }) => <section className="timeline-day">
+  <div className="timeline-date"><span>{day}</span><strong>{date}</strong><i /> </div>
+  <div className="timeline-content"><p className="eyebrow">Mark the moment</p><h2>{title}</h2><p className="timeline-intro">{children}</p><div className="timeline-event"><Clock3 size={19} strokeWidth={1.35} /><div><span>{time}</span><h3>{venue}</h3><a href={map} target="_blank" rel="noreferrer">View location <ArrowUpRight size={14} strokeWidth={1.5} /></a></div></div></div>
+</section>;
 
-        <div className="info-block" style={{ borderLeft: '2px solid var(--color-accent)', paddingLeft: '2rem', textAlign: 'left', marginBottom: '4rem' }}>
-          <h3 style={{ fontSize: '1.2rem', color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '0.5rem' }}>Tuesday, 26 Jan 2027</h3>
-          <h2 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>The Marriage</h2>
-          <p><strong>Time:</strong> 4:30 PM</p>
-          <p><strong>Location:</strong> Subha Deep Villa, Maheshtala <a href="https://maps.app.goo.gl/XnhsdVqRoTtwMRBm7" target="_blank" rel="noreferrer" className="link-text" style={{marginTop: 0, marginLeft: '0.5rem'}}>Map</a></p>
-          <p><strong>Attire:</strong> Traditional / Formal</p>
-          <p style={{ marginTop: '1rem' }}>We invite you to join us as we tie the knot and celebrate our beginning.</p>
-        </div>
-
-        <div className="info-block" style={{ borderLeft: '2px solid var(--color-accent)', paddingLeft: '2rem', textAlign: 'left' }}>
-          <h3 style={{ fontSize: '1.2rem', color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '0.5rem' }}>Thursday, 28 Jan 2027</h3>
-          <h2 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>The Reception</h2>
-          <p><strong>Time:</strong> 7:00 PM</p>
-          <p><strong>Location:</strong> Bangur Avenue Town Hall <a href="https://maps.app.goo.gl/x2wshfVBcZM2PsAd6" target="_blank" rel="noreferrer" className="link-text" style={{marginTop: 0, marginLeft: '0.5rem'}}>Map</a></p>
-          <p><strong>Attire:</strong> Formal / Black Tie Optional</p>
-          <p style={{ marginTop: '1rem' }}>Join us for an evening of dining, dancing, and celebration!</p>
-        </div>
-
-      </div>
-    </div>
-  );
-};
+const Schedule = () => <div className="event-page schedule-page">
+  <header className="page-intro page-shell"><p className="eyebrow centered">Our wedding week</p><h1 className="display-title">The Itinerary</h1><p className="lead">Come for the vows. Stay for the stories, the supper, and the dance floor.</p></header>
+  <main className="page-shell timeline">
+    <Timeline day="Tuesday" date="26" title="The Marriage" time="4:30 PM onwards" venue="Subha Deep Villa, Maheshtala" map="https://maps.app.goo.gl/XnhsdVqRoTtwMRBm7">Join us as we exchange vows and toast to a beautiful beginning. Traditional or formal attire is warmly encouraged.</Timeline>
+    <Timeline day="Thursday" date="28" title="The Reception" time="7:00 PM onwards" venue="Bangur Avenue Town Hall" map="https://maps.app.goo.gl/x2wshfVBcZM2PsAd6">An evening for embracing, dining, dancing, and celebrating together. Formal or black-tie optional attire.</Timeline>
+  </main>
+  <section className="dress-note"><p className="eyebrow centered">Dress code</p><h2>Bring your brightest selves.</h2></section>
+</div>;
 
 export default Schedule;

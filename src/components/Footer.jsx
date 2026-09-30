@@ -1,32 +1,5 @@
 import React from 'react';
-
-const Footer = () => {
-  return (
-    <footer style={{
-      textAlign: 'center',
-      padding: '3rem 1rem',
-      backgroundColor: 'var(--color-bg-alt)',
-      borderTop: '1px solid rgba(0,0,0,0.05)',
-      marginTop: 'auto'
-    }}>
-      <p style={{
-        fontFamily: 'var(--font-serif)',
-        fontSize: '1.5rem',
-        marginBottom: '1rem'
-      }}>
-        Sayan & Sukanya
-      </p>
-      <p style={{
-        fontFamily: 'var(--font-sans)',
-        fontSize: '0.8rem',
-        textTransform: 'uppercase',
-        letterSpacing: '2px',
-        color: 'var(--color-text-light)'
-      }}>
-        26 Jan 2027 • Kolkata
-      </p>
-    </footer>
-  );
-};
-
+import { Link } from 'react-router-dom';
+import './Footer.css';
+const Footer = () => (<footer className="footer"><div className="footer-top"><p className="eyebrow centered">With love, always</p><p className="footer-names">Sayan <em>&amp;</em> Sukanya</p><Link className="btn btn--light" to="/rsvp">Celebrate with us</Link></div><div className="footer-bottom"><span>26 · 01 · 2027</span><span>Kolkata, India</span><span>Made for the ones we love</span></div></footer>);
 export default Footer;
