@@ -1,101 +1,63 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { BotMessageSquare, CircleHelp, Heart, RotateCcw, Sparkles, Trophy } from 'lucide-react';
+import { MapPin, MessageCircleHeart, PartyPopper, Send, Sparkles } from 'lucide-react';
 import './Play.css';
 
-const PAIRS = [
-  { key: 'rings', icon: '◌', label: 'Rings' },
-  { key: 'music', icon: '♫', label: 'Music' },
-  { key: 'flowers', icon: '✿', label: 'Flowers' },
-  { key: 'toast', icon: '✦', label: 'Toast' },
-  { key: 'love', icon: '♥', label: 'Love' },
-  { key: 'vows', icon: '✧', label: 'Vows' },
-];
-
-const createDeck = () => PAIRS.flatMap((pair) => [
-  { ...pair, id: `${pair.key}-one` },
-  { ...pair, id: `${pair.key}-two` },
-]).sort(() => Math.random() - 0.5);
-
-const conciergeReply = (question) => {
-  const query = question.toLowerCase();
-  if (query.includes('marriage') || query.includes('ceremony') || query.includes('vow')) return 'The marriage begins at 4:30 PM on Tuesday, 26 January at Subha Deep Villa in Maheshtala.';
-  if (query.includes('reception')) return 'The reception starts at 7:00 PM on Thursday, 28 January at Bangur Avenue Town Hall.';
-  if (query.includes('where') || query.includes('map') || query.includes('location') || query.includes('venue')) return 'You can find a Google Maps link for both venues on the Details and Itinerary pages.';
-  if (query.includes('when') || query.includes('time') || query.includes('arrive')) return 'For the marriage, arrive from 4:30 PM; for the reception, arrive from 7:00 PM. We cannot wait to welcome you.';
-  if (query.includes('rsvp') || query.includes('reply') || query.includes('respond')) return 'Please send your RSVP by 1 December 2026. The RSVP page is ready whenever you are.';
-  if (query.includes('parking') || query.includes('car') || query.includes('taxi')) return 'Valet parking will be available at both venues. Taxis can use the main gate drop-off.';
-  if (query.includes('wear') || query.includes('dress') || query.includes('attire')) return 'Come in whatever makes you feel festive, comfortable, and ready to celebrate.';
-  return 'I can help with the wedding dates, venues, arrival times, parking, attire, and RSVP. Try asking about any of those.';
+const BOTS = {
+  mila: { name: 'Asha', role: 'The detail keeper', icon: MapPin, color: 'mila', greeting: 'Hello! I’m Asha, your wedding details bot. Need a time, a map, or the RSVP deadline? I’m on it.', acknowledgement: 'Let me check that for you.' },
+  noor: { name: 'Rumi', role: 'The joy bringer', icon: PartyPopper, color: 'noor', greeting: 'Hi hi! I’m Rumi, your celebration bot. Ask me about arrival, attire, or just what to look forward to.', acknowledgement: 'Ooh, I love that question.' },
 };
 
+const answerQuestion = (question, bot) => {
+  const query = question.toLowerCase();
+  let answer = 'I can help with the dates, venues, arrival times, parking, attire, and RSVP. What would you like to know?';
+  if (query.includes('marriage') || query.includes('ceremony') || query.includes('vow')) answer = 'The marriage begins at 4:30 PM on Tuesday, 26 January at Subha Deep Villa in Maheshtala.';
+  else if (query.includes('reception')) answer = 'The reception starts at 7:00 PM on Thursday, 28 January at Bangur Avenue Town Hall.';
+  else if (query.includes('where') || query.includes('map') || query.includes('location') || query.includes('venue')) answer = 'Both venue links are in the Details section above. Tap “Open map” when you are ready for directions.';
+  else if (query.includes('when') || query.includes('time') || query.includes('arrive')) answer = 'For the marriage, arrive from 4:30 PM. For the reception, join us from 7:00 PM.';
+  else if (query.includes('rsvp') || query.includes('reply') || query.includes('respond')) answer = 'Please send your RSVP by 1 December 2026. We would be so happy to celebrate with you.';
+  else if (query.includes('parking') || query.includes('car') || query.includes('taxi')) answer = 'Valet parking is available at both venues. Taxis can use the main gate drop-off.';
+  else if (query.includes('wear') || query.includes('dress') || query.includes('attire')) answer = 'Wear whatever makes you feel joyful, comfortable, and ready to celebrate. Bring your brightest self.';
+  return bot === 'noor' && !answer.endsWith('✨') ? `${answer} ✨` : answer;
+};
+
+const BotAvatar = ({ name, color, size = 'regular' }) => <span className={`robot-avatar robot-avatar--${color} robot-avatar--${size}`} aria-label={`${name} bot avatar`}><i className="robot-antenna" /><span className="robot-face"><b /><b /></span><span className="robot-cheek robot-cheek--left" /><span className="robot-cheek robot-cheek--right" /></span>;
+
 export const WeddingQuest = ({ embedded = false }) => {
-  const [deck, setDeck] = useState(createDeck);
-  const [openCards, setOpenCards] = useState([]);
-  const [matchedIds, setMatchedIds] = useState([]);
-  const [moves, setMoves] = useState(0);
-  const [locked, setLocked] = useState(false);
+  const [activeBot, setActiveBot] = useState('mila');
   const [question, setQuestion] = useState('');
-  const [reply, setReply] = useState('Hello! I’m your celebration concierge. Ask me anything about the weekend, or warm up with a quick game.');
+  const [messages, setMessages] = useState([{ from: 'bot', bot: 'mila', text: BOTS.mila.greeting }]);
+  const [isTyping, setIsTyping] = useState(false);
   const timerRef = useRef(null);
-  const completed = matchedIds.length === deck.length;
+  const bot = BOTS[activeBot];
 
   useEffect(() => () => window.clearTimeout(timerRef.current), []);
 
-  const restart = () => {
+  const chooseBot = (key) => {
     window.clearTimeout(timerRef.current);
-    setDeck(createDeck());
-    setOpenCards([]);
-    setMatchedIds([]);
-    setMoves(0);
-    setLocked(false);
+    setIsTyping(false);
+    setActiveBot(key);
+    setMessages([{ from: 'bot', bot: key, text: BOTS[key].greeting }]);
   };
 
-  const flipCard = (card) => {
-    if (locked || openCards.includes(card.id) || matchedIds.includes(card.id)) return;
-    const nextOpen = [...openCards, card.id];
-    setOpenCards(nextOpen);
-    if (nextOpen.length < 2) return;
-    setMoves((count) => count + 1);
-    setLocked(true);
-    const [firstId, secondId] = nextOpen;
-    const first = deck.find((item) => item.id === firstId);
-    const second = deck.find((item) => item.id === secondId);
-    timerRef.current = window.setTimeout(() => {
-      if (first.key === second.key) setMatchedIds((ids) => [...ids, firstId, secondId]);
-      setOpenCards([]);
-      setLocked(false);
-    }, 680);
-  };
-
-  const askConcierge = (event) => {
-    event.preventDefault();
-    const trimmed = question.trim();
-    if (!trimmed) return;
-    setReply(conciergeReply(trimmed));
+  const sendQuestion = (rawQuestion) => {
+    const text = rawQuestion.trim();
+    if (!text || isTyping) return;
+    setMessages((current) => [...current, { from: 'user', text }]);
     setQuestion('');
+    setIsTyping(true);
+    timerRef.current = window.setTimeout(() => {
+      setMessages((current) => [...current, { from: 'bot', bot: activeBot, text: answerQuestion(text, activeBot) }]);
+      setIsTyping(false);
+    }, 620);
   };
 
-  return <section id="play" className={`play-page ${embedded ? 'play-page--embedded' : ''}`}>
-    {!embedded && <header className="page-intro page-shell play-intro"><p className="eyebrow centered">A little something extra</p><h1 className="display-title">Wedding Quest</h1><p className="lead">Ask, discover, match, and unlock a little more joy before the big day.</p></header>}
-    <main className="page-shell play-grid">
-      <section className="concierge-card">
-        <div className="concierge-mark"><BotMessageSquare size={24} strokeWidth={1.25} /><span>Smart guide</span></div>
-        <div className="concierge-heading"><p className="eyebrow">Event concierge</p><h2>Need a<br /><em>little help?</em></h2></div>
-        <div className="assistant-reply"><Sparkles size={16} strokeWidth={1.5} /><p>{reply}</p></div>
-        <form className="concierge-form" onSubmit={askConcierge}><label htmlFor="concierge-question">Ask about the wedding</label><div><input id="concierge-question" value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Where is the reception?" /><button type="submit" aria-label="Ask concierge">↗</button></div></form>
-        <div className="question-chips"><button type="button" onClick={() => setReply(conciergeReply('Where is the marriage?'))}><CircleHelp size={13} />Marriage venue</button><button type="button" onClick={() => setReply(conciergeReply('What is the RSVP deadline?'))}><CircleHelp size={13} />RSVP deadline</button><button type="button" onClick={() => setReply(conciergeReply('Is there parking?'))}><CircleHelp size={13} />Parking</button></div>
-      </section>
+  const askBot = (event) => { event.preventDefault(); sendQuestion(question); };
 
-      <section className="memory-game" aria-label="Wedding matching game">
-        <div className="game-header"><div><p className="eyebrow">Mini game</p><h2>Find the<br /><em>perfect pair.</em></h2></div><div className="game-score"><span>Pairs</span><strong>{matchedIds.length / 2} / {PAIRS.length}</strong><span>Moves</span><strong>{moves}</strong></div></div>
-        {completed ? <div className="game-complete"><Trophy size={34} strokeWidth={1.25} /><p className="eyebrow centered">Quest complete</p><h3>You found every<br /><em>little moment.</em></h3><p>Thank you for playing. We saved a dance just for you.</p><button className="btn btn--outline" type="button" onClick={restart}><RotateCcw size={14} /> Play again</button></div> : <div className="memory-grid">{deck.map((card) => {
-          const visible = openCards.includes(card.id) || matchedIds.includes(card.id);
-          return <button className={`memory-card ${visible ? 'is-open' : ''} ${matchedIds.includes(card.id) ? 'is-match' : ''}`} key={card.id} type="button" onClick={() => flipCard(card)} aria-label={visible ? card.label : 'Reveal a card'}><span className="card-back">S <i>&amp;</i> S</span><span className="card-front"><b>{card.icon}</b><small>{card.label}</small></span></button>;
-        })}</div>}
-        {!completed && <button type="button" className="restart-game" onClick={restart}><RotateCcw size={14} />Restart game</button>}
-      </section>
-    </main>
-    <section className="quest-footer"><Heart size={18} fill="currentColor" strokeWidth={1} /><p>Every celebration is better with a little play.</p></section>
+  return <section id="play" className={`play-page chatbot-page ${embedded ? 'play-page--embedded' : ''}`}>
+    {!embedded && <header className="page-intro page-shell play-intro"><p className="eyebrow centered">A little help, always</p><h1 className="display-title">Meet the wedding bots</h1><p className="lead">Tiny digital helpers for every practical question and every happy thought.</p></header>}
+    <div className="page-shell chat-wrap"><div className="chat-intro"><p className="eyebrow">Your tiny helpers</p><h2>Ask away.<br /><em>We’ve got you.</em></h2><p>Two friendly celebration bots are ready to help, from the first question to the last happy dance.</p><div className="bot-switcher">{Object.entries(BOTS).map(([key, item]) => { const BotIcon = item.icon; return <button key={key} type="button" className={`bot-choice ${activeBot === key ? 'is-active' : ''} ${item.color}`} onClick={() => chooseBot(key)}><BotAvatar name={item.name} color={item.color} size="small" /><span className="bot-choice-copy"><b>{item.name}</b><small>{item.role}</small></span><BotIcon size={16} strokeWidth={1.6} /></button>; })}</div></div>
+      <section className={`chat-window ${bot.color}`} aria-label={`${bot.name} wedding chatbot`}><header className="chat-window-head"><BotAvatar name={bot.name} color={bot.color} /><div><strong>{bot.name}</strong><span><i />Online and ready to help</span></div><Sparkles size={18} /></header><div className="chat-messages" aria-live="polite">{messages.map((message, index) => message.from === 'user' ? <div className="user-message" key={`${message.text}-${index}`}><p>{message.text}</p><span>You</span></div> : <div className="bot-message" key={`${message.text}-${index}`}><BotAvatar name={BOTS[message.bot].name} color={BOTS[message.bot].color} size="tiny" /><p>{message.text}</p></div>)}{isTyping && <div className="bot-message bot-typing"><BotAvatar name={bot.name} color={bot.color} size="tiny" /><p><i /><i /><i /></p></div>}</div><div className="chat-prompts"><button type="button" disabled={isTyping} onClick={() => sendQuestion('Where is the marriage?')}>Marriage venue</button><button type="button" disabled={isTyping} onClick={() => sendQuestion('When is the reception?')}>Reception time</button><button type="button" disabled={isTyping} onClick={() => sendQuestion(activeBot === 'mila' ? 'When is RSVP?' : 'Is there parking?')}>{activeBot === 'mila' ? 'RSVP deadline' : 'Parking'}</button></div><form className="cute-chat-form" onSubmit={askBot}><label htmlFor="bot-question">Message {bot.name}</label><div><input id="bot-question" value={question} disabled={isTyping} onChange={(event) => setQuestion(event.target.value)} placeholder={activeBot === 'mila' ? 'Where is the reception?' : 'What should I wear?'} /><button type="submit" disabled={!question.trim() || isTyping} aria-label={`Send message to ${bot.name}`}><Send size={16} /></button></div></form></section></div>
+    <div className="chatbot-note"><MessageCircleHeart size={18} /><p>Asha and Rumi know the wedding details by heart.</p></div>
   </section>;
 };
 
