@@ -1,6 +1,5 @@
 import React from 'react';
 import { HashRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
-import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import BackgroundMusic from './components/BackgroundMusic';
 
@@ -12,7 +11,6 @@ const Layout = ({ children }) => {
   const location = useLocation();
   return (
     <div className="page-container">
-      <Navbar />
       <BackgroundMusic />
       <main className="content-wrap fade-in" key={location.pathname}>
         {children}
