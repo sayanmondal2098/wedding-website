@@ -35,8 +35,6 @@ jobs:
 
       - name: Build website
         run: npm run build
-        env:
-          VITE_RSVP_SHEET_ENDPOINT: ${{ secrets.RSVP_SHEET_ENDPOINT }}
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
