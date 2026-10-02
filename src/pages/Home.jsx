@@ -11,17 +11,18 @@ const Countdown = () => {
   const [remaining, setRemaining] = useState(getTime);
 
   useEffect(() => {
-    const timer = window.setInterval(() => setRemaining(getTime()), 60_000);
+    const timer = window.setInterval(() => setRemaining(getTime()), 1_000);
     return () => window.clearInterval(timer);
   }, []);
 
   const days = Math.floor(remaining / 86_400_000);
   const hours = Math.floor((remaining % 86_400_000) / 3_600_000);
+  const minutes = Math.floor((remaining % 3_600_000) / 60_000);
+  const seconds = Math.floor((remaining % 60_000) / 1_000);
+  const parts = [[days, 'Days'], [hours, 'Hours'], [minutes, 'Mins'], [seconds, 'Secs']];
 
-  return <div className="countdown" aria-label={`${days} days and ${hours} hours until the marriage`}>
-    <span><b>{String(days).padStart(2, '0')}</b> days</span>
-    <i aria-hidden="true">·</i>
-    <span><b>{String(hours).padStart(2, '0')}</b> hours to go</span>
+  return <div className="countdown" aria-label={`${days} days, ${hours} hours, ${minutes} minutes, and ${seconds} seconds until the marriage`}>
+    {parts.map(([value, label]) => <span className="countdown-part" key={label}><b>{String(value).padStart(2, '0')}</b><small>{label}</small></span>)}
   </div>;
 };
 
