@@ -15,8 +15,8 @@ const BackgroundMusic = () => {
     audio.volume = 0.42;
 
     const startMusic = async () => {
-      if (unmounted || !audio.paused) return;
-      if (audio.currentTime < 1) audio.currentTime = 180;
+      if (unmounted || !audio.paused || audio.readyState < 1) return;
+      if (audio.currentTime < 1 && Number.isFinite(audio.duration) && audio.duration > 180) audio.currentTime = 180;
 
       try {
         await audio.play();
@@ -29,6 +29,7 @@ const BackgroundMusic = () => {
     // Start as soon as the audio is ready. Browsers that block audible autoplay
     // will make the same attempt again on the visitor's first interaction.
     const handleReady = () => startMusic();
+    audio.addEventListener('loadedmetadata', handleReady, { once: true });
     audio.addEventListener('canplay', handleReady, { once: true });
     startMusic();
     document.addEventListener('pointerdown', startMusic, { once: true });
@@ -37,6 +38,7 @@ const BackgroundMusic = () => {
     return () => {
       unmounted = true;
       audio.pause();
+      audio.removeEventListener('loadedmetadata', handleReady);
       audio.removeEventListener('canplay', handleReady);
       document.removeEventListener('pointerdown', startMusic);
       document.removeEventListener('keydown', startMusic);
@@ -61,7 +63,7 @@ const BackgroundMusic = () => {
   };
 
   return <div className="music-control">
-    <audio ref={audioRef} src={audioUrl} autoPlay preload="auto" loop onEnded={() => setPlaying(false)} />
+    <audio ref={audioRef} src={audioUrl} autoPlay playsInline preload="auto" loop onEnded={() => setPlaying(false)} />
     <button type="button" onClick={toggleMusic} aria-pressed={playing} aria-label={playing ? 'Pause background music' : 'Play background music'}>
       {playing ? <Volume2 size={16} strokeWidth={1.5} /> : <VolumeX size={16} strokeWidth={1.5} />}<span>{playing ? 'Sound on' : 'Sound off'}</span>
     </button>
