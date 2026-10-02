@@ -22,7 +22,10 @@ const Countdown = () => {
   const parts = [[days, 'Days'], [hours, 'Hours'], [minutes, 'Mins'], [seconds, 'Secs']];
 
   return <div className="countdown" aria-label={`${days} days, ${hours} hours, ${minutes} minutes, and ${seconds} seconds until the marriage`}>
-    {parts.map(([value, label]) => <span className="countdown-part" key={label}><b>{String(value).padStart(2, '0')}</b><small>{label}</small></span>)}
+    <p><span>Counting down to the marriage</span>Tuesday, 26 January 2027 · 4:30 PM</p>
+    <div className="countdown-grid">
+      {parts.map(([value, label]) => <span className="countdown-part" key={label}><b>{String(value).padStart(2, '0')}</b><small>{label}</small></span>)}
+    </div>
   </div>;
 };
 
