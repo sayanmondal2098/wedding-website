@@ -2,20 +2,17 @@ import React, { useState } from 'react';
 import { Check, Heart } from 'lucide-react';
 import './PageStyles.css';
 
+const DEFAULT_RSVP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwZ1vb6MYo1723yEJCT7bJntPHxO2XdHB6Q9lHzwK-EXaOmwCDb0wa8fcaKqsoDGBU/exec';
+
 const RSVP = () => {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
-  const rsvpEndpoint = import.meta.env.VITE_RSVP_SHEET_ENDPOINT?.trim();
+  const rsvpEndpoint = import.meta.env.VITE_RSVP_SHEET_ENDPOINT?.trim() || DEFAULT_RSVP_ENDPOINT;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setSubmitError('');
-    if (!rsvpEndpoint) {
-      setSubmitError('RSVP collection is being connected. Please check back shortly.');
-      return;
-    }
-
     const form = new FormData(event.currentTarget);
     const payload = new URLSearchParams({
       name: form.get('name')?.toString().trim() || '',
@@ -25,7 +22,14 @@ const RSVP = () => {
 
     setSubmitting(true);
     try {
-      await fetch(rsvpEndpoint, { method: 'POST', mode: 'no-cors', body: payload });
+      const response = await fetch(rsvpEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+        body: payload.toString(),
+      });
+      if (!response.ok) throw new Error(`RSVP request failed (${response.status})`);
+      const result = await response.json();
+      if (result.success !== true && result.ok !== true) throw new Error(result.error || 'The RSVP service could not save your response.');
       setSubmitted(true);
     } catch {
       setSubmitError('We could not send your RSVP. Please try again in a moment.');
